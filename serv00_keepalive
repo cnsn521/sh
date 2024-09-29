@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# 定义要检测的网站URL
+url="http://alist.cunshan.serv00.net"
+
+# 定义远程服务器的SSH信息
+remote_user="cunshan"
+remote_host="s8.serv00.com"
+remote_script_path="~/run.sh"
+
+# 使用curl获取HTTP状态码
+http_status=$(curl -o /dev/null -s -w "%{http_code}\n" $url)
+
+# 检查HTTP状态码是否为200
+if [ "$http_status" -eq 200 ]; then
+    echo "网站正常，状态码为200，跳过执行脚本。"
+else
+    echo "网站不正常，状态码为$http_status，登录远程服务器执行脚本。"
+    
+    # 通过SSH登录远程服务器并执行脚本
+    ssh $remote_user@$remote_host "bash $remote_script_path"
+    
+    if [ $? -eq 0 ]; then
+        echo "脚本执行成功。"
+    else
+        echo "脚本执行失败，请检查连接和脚本路径。"
+    fi
+fi
